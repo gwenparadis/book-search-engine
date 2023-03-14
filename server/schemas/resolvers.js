@@ -1,27 +1,50 @@
-const { UserInputError } = require("apollo-server-express");
-const { User, bookSchema } = require("../models");
+const { AuthenticationError } = require("apollo-server-express");
+const { User } = require("../models");
+const { signToken } = require("../utils/auth");
 
 const resolvers = {
   Query: {
-    me: async () => {
-      return await User.find({});
+    me: async (parent, args, context) => {
+      if (context.user) {
+        const userData = await await User.findOne({
+          _id: context.user._id,
+        }).select("-__v -password");
+
+        return userData;
+      }
+
+      throw new AuthenticationError("Not logged in!");
     },
   },
+
   Mutation: {
-    login: async (args) => {
-      const login = await User.findOne(args);
-      return login;
+    login: async (parent, { email, password }) => {
+      const login = await User.findOne({ email });
+      if (!login) {
+        throw new AuthenticationError("Incorrect Credentials");
+      }
+
+      const correctPw = await login.isCorrectPassword(password);
+
+      if (!correctPw) {
+        throw new AuthenticationError("Incorrect Credentials");
+      }
+
+      const token = signToken(login);
+      return { token, login };
     },
-    addUser: async (args) => {
-      const newUser = await User.create(args);
-      return newUser;
+    addUser: async (parent, args) => {
+      const user = await User.create(args);
+      const token = signToken(user);
+
+      return { token, user };
     },
-    saveBook: async (args) => {
-      const newBook = await Book.create(args);
+    saveBook: async (parent, { bookData }, context) => {
+      const newBook = await bookSchema.create(args);
       return newBook;
     },
-    removeBook: async (args) => {
-      const deleteBook = await Book.findOneAndDelete(args);
+    removeBook: async (parent, { bookId }, context) => {
+      const deleteBook = await bookSchema.findOneAndDelete(args);
       return deleteBook;
     },
   },
