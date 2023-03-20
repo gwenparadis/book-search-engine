@@ -1,5 +1,8 @@
-const { AuthenticationError } = require("apollo-server-express");
-const { User } = require("../models");
+const {
+  AuthenticationError,
+  UserInputError,
+} = require("apollo-server-express");
+const { User, Book } = require("../models");
 const { signToken } = require("../utils/auth");
 
 const resolvers = {
@@ -47,29 +50,26 @@ const resolvers = {
           {
             _id: context.user._id,
           },
-          { $push: { savedBooks: bookData } },
+          { $addToSet: { savedBooks: bookData } },
           { new: true }
         ).select("-__v -password");
 
-        return bookData;
+        return userData;
       }
 
       throw new AuthenticationError("Not logged in!");
     },
-    removeBook: async (parent, { bookId }, context) => {
+    removeBook: async (parent, { book_id }, context) => {
       if (context.user) {
-        const user = await bookSchema
-          .findOneAndDelete(
-            {
-              _id: context.user._id,
-            },
-            //complete the pull
-            { $pull: { savedBooks: bookId } },
-            { new: true }
-          )
-          .select("-__v -password");
+        const savedBooks = await User.findByIdAndUpdate(
+          {
+            _id: context.user._id,
+          },
+          { $pull: { savedBooks: savedBooks._id } },
+          { new: true }
+        ).select("-__v -password");
 
-        return user;
+        return savedBooks;
       }
       throw new AuthenticationError("Not logged in!");
     },
