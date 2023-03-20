@@ -40,7 +40,7 @@ function SearchBooks() {
       const { items } = await response.json();
 
       const bookData = items.map((book) => ({
-        bookId: book._id,
+        id: book.id,
         authors: book.volumeInfo.authors || ["No author to display"],
         title: book.volumeInfo.title,
         description: book.volumeInfo.description,
@@ -55,9 +55,9 @@ function SearchBooks() {
   };
 
   // create function to handle saving a book to our database
-  const handleSaveBook = async (bookId) => {
+  const handleSaveBook = async (book_id) => {
     // find the book in `searchedBooks` state by the matching id
-    const bookToSave = searchedBooks.find((book) => book.bookid === bookId);
+    const input = searchedBooks.find((book) => book.id === book_id);
 
     // get token
     const token = Auth.loggedIn() ? Auth.getToken() : null;
@@ -68,14 +68,14 @@ function SearchBooks() {
 
     try {
       //use mutation save book with "book to save" argument, no token
-      const { response } = await saveBook({ variables: { bookToSave } });
+      const { response } = await saveBook({ variables: { input } });
 
       if (!response.ok) {
         throw new Error("something went wrong!");
       }
 
       // if book successfully saves to user's account, save book id to state
-      setSavedBookIds([...savedBookIds, bookToSave.book_id]);
+      setSavedBookIds([...savedBookIds, input.id]);
     } catch (err) {
       console.error(err);
     }

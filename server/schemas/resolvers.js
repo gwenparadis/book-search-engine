@@ -59,13 +59,13 @@ const resolvers = {
 
       throw new AuthenticationError("Not logged in!");
     },
-    removeBook: async (parent, { book_id }, context) => {
+    removeBook: async (parent, { id }, context) => {
       if (context.user) {
         const savedBooks = await User.findByIdAndUpdate(
           {
-            _id: context.user._id,
+            _id: context.user.id,
           },
-          { $pull: { savedBooks: savedBooks._id } },
+          { $pull: { savedBooks: id } },
           { new: true }
         ).select("-__v -password");
 
