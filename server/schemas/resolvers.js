@@ -40,7 +40,8 @@ const resolvers = {
 
       return { token, user };
     },
-    saveBook: async (parent, { bookData }, context) => {
+    saveBook: async (parent, { input }, context) => {
+      const { bookData } = input;
       if (context.user) {
         const userData = await await User.findByIdAndUpdate(
           {
@@ -50,7 +51,7 @@ const resolvers = {
           { new: true }
         ).select("-__v -password");
 
-        return userData;
+        return bookData;
       }
 
       throw new AuthenticationError("Not logged in!");

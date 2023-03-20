@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Container, Col, Form, Button, Card, Row } from "react-bootstrap";
-import { useQuery, useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client";
 import Auth from "../utils/auth";
-import { saveBook, searchGoogleBooks } from "../utils/API";
+import { searchGoogleBooks } from "../utils/API";
+import { SAVE_BOOK } from "../utils/mutations";
 import { saveBookIds, getSavedBookIds } from "../utils/localStorage";
 
 function SearchBooks() {
+  const [saveBook, { error }] = useMutation(SAVE_BOOK);
   // create state for holding returned google api data
   const [searchedBooks, setSearchedBooks] = useState([]);
   // create state for holding our search field data
@@ -66,7 +68,7 @@ function SearchBooks() {
 
     try {
       //use mutation save book with "book to save" argument, no token
-      const response = await saveBook(bookToSave, token);
+      const { response } = await saveBook({ variables: { bookToSave } });
 
       if (!response.ok) {
         throw new Error("something went wrong!");
@@ -116,7 +118,7 @@ function SearchBooks() {
           {searchedBooks.map((book) => {
             return (
               <Col md="4">
-                <Card key={book.bookId} border="dark">
+                <Card key={book.book_id} border="dark">
                   {book.image ? (
                     <Card.Img
                       src={book.image}
