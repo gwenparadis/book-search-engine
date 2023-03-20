@@ -41,12 +41,36 @@ const resolvers = {
       return { token, user };
     },
     saveBook: async (parent, { bookData }, context) => {
-      const newBook = await bookSchema.create(args);
-      return newBook;
+      if (context.user) {
+        const userData = await await User.findByIdAndUpdate(
+          {
+            _id: context.user._id,
+          },
+          { $push: { savedBooks: bookData } },
+          { new: true }
+        ).select("-__v -password");
+
+        return userData;
+      }
+
+      throw new AuthenticationError("Not logged in!");
     },
     removeBook: async (parent, { bookId }, context) => {
-      const deleteBook = await bookSchema.findOneAndDelete(args);
-      return deleteBook;
+      if (context.user) {
+        const user = await bookSchema
+          .findOneAndDelete(
+            {
+              _id: context.user._id,
+            },
+            //complete the pull
+            { $pull: { savedBooks: bookId } },
+            { new: true }
+          )
+          .select("-__v -password");
+
+        return user;
+      }
+      throw new AuthenticationError("Not logged in!");
     },
   },
 };

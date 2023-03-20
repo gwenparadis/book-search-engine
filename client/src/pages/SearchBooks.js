@@ -29,6 +29,7 @@ function SearchBooks() {
     }
 
     try {
+      //mutation searchGoogleBooks
       const response = await searchGoogleBooks(searchInput);
 
       if (!response.ok) {
@@ -65,6 +66,7 @@ function SearchBooks() {
     }
 
     try {
+      //use mutation save book with "book to save" argument, no token
       const response = await saveBook(bookToSave, token);
 
       if (!response.ok) {
