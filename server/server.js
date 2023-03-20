@@ -3,6 +3,7 @@ const express = require("express");
 const path = require("path");
 const typeDefs = require("./schemas/typeDefs");
 const resolvers = require("./schemas/resolvers");
+const authMiddleware = require("./utils/auth.js");
 
 const db = require("./config/connection");
 
@@ -18,7 +19,9 @@ app.use(express.json());
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../client/build")));
 }
-// app.use(routes);
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/"));
+});
 
 const startApolloServer = async () => {
   await server.start();
