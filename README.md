@@ -8,6 +8,8 @@ I created this book search engine in order to create an place for users to creat
 
 This webpage can be accessed at the following URL: https://pacific-temple-68060.herokuapp.com/
 
+![Portfolio Readme Screenshot](./client/public/appScreenshot.png)
+
 ## Usage
 
 See the following Acceptance Criteria to understand how the application can be accessed and utilized:
